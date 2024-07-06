@@ -41,7 +41,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     type: 'go_to',
-    message0: 'GoTo %1 and %2',
+    message0: 'go to: %1 and %2',
     args0: [
       {
         type: 'field_label_serializable',
@@ -58,6 +58,13 @@ Blockly.defineBlocksWithJsonArray([
     nextStatement: null,
     colour: 444,
   },
+  {
+    type: 'move_step',
+    message0: 'move step',
+    previousStatement: null,
+    nextStatement: null,
+    colour: 615, 
+  },
 ]);
 
 // Generator code for print block remains unchanged
@@ -72,6 +79,17 @@ javascript.javascriptGenerator.forBlock['go_to'] = function(block) {
   block.setFieldValue(Math.floor(Math.random() * 6) + 1, 'go_to_2');
   var textY = block.getFieldValue('go_to_1');
   var textX = block.getFieldValue('go_to_2');
-  return 'grid.movePlayer(player, ' + textX + ', ' + textY + ');\n';
-};
+  return 'grid.goTo(player, ' + textX + ', ' + textY + ');\n';
+}; 
+
+javascript.javascriptGenerator.forBlock['move_step'] = function(block) {  
+  var c = player.coins >= 5
+  block.setEnabled(c); 
+  if(c){
+    player.coins-=5; 
+    return 'grid.step(player);\n';
+  } 
+  return '';
+  
+}; 
 
