@@ -75,15 +75,14 @@ class Grid {
       playerImage.src = player.image;
       playerImage.alt = player.name;
       playerImage.className = 'player-image';
+      playerImage.style.transform = `rotate(${player.rotationAngle}deg)`;
+
       gridItem.appendChild(playerImage);
     }
-  }
+  } 
 
-  movePlayer(player, newRow, newCol) {
-    // Check if the new position is within bounds
-    if (newRow >= 0 && newRow < this.rows && newCol >= 0 && newCol < this.cols) {
-      // Clear the current position
-      const currentPosition = player.row * this.cols + player.col;
+  #transformPlayer(player){
+    const currentPosition = player.row * this.cols + player.col;
       const currentGridItem = this.container.children[currentPosition];
       if (currentGridItem) {
         currentGridItem.innerHTML = '';
@@ -103,7 +102,14 @@ class Grid {
         uniqueVariable.style.fontSize = '10px';
         currentGridItem.appendChild(uniqueVariable);
       }
+  }
 
+  goTo(player, newRow, newCol) {
+    // Check if the new position is within bounds
+    if (newRow >= 0 && newRow < this.rows && newCol >= 0 && newCol < this.cols) {
+      // Clear the current position
+      
+      this.#transformPlayer(player); 
       // Update player's position
       player.move(newRow, newCol);
 
@@ -111,27 +117,54 @@ class Grid {
       this.placePlayer(player);
     }
     player.loadStats(); 
+  }  
+  step(player){
+        if(player.row+1<=7){
+          this.#transformPlayer(player); 
+          player.step(player.rotationAngle);
+          this.placePlayer(player);
+        } 
+        player.loadStats(); 
+    }
   }
   
-}
 
 
 
 
   
   class Player {
-    constructor(name, row, col, image) {
+    constructor(name, row, col, image, rotationAngle) {
       this.name = name;
       this.row = row;
       this.col = col; 
       this.coins = 0; 
-      this.health = 100; 
+      this.health = 100;  
+      this.rotationAngle = rotationAngle; 
       this.image = image;
+      
     }
   
     move(row, col) {
       this.row = row;
       this.col = col;
+    } 
+
+    step(){
+      switch(this.rotationAngle) {
+        case 270:
+          this.col--;   
+          break;
+        case 90:
+          this.col++; 
+          break;
+        case 0:
+          this.row--;  
+          break;
+        case 180:
+          this.row++; 
+          break;
+      }
     }
   
     getPosition() {
@@ -159,7 +192,7 @@ class Grid {
   grid.generateGrid();
   
   // Create a new instance of Player 
-  const player = new Player('Kai', 4, 0, 'images/guy.png');  
+  const player = new Player('Kai', 4, 0, 'images/guy.png', 270);  
   
   
   
@@ -168,4 +201,5 @@ class Grid {
   
   // Example of moving the player
   grid.movePlayer(player, 3, 1);// Move player to row 3, column 1
+  
   
