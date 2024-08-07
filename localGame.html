@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Blockly for the Web Codelab</title>
+
+  <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css" />
+  <link rel="stylesheet" href="styles/index.css" />
+  <style>
+    main {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    #blocklyDiv {
+      height: 100%;
+      width: 100%;  
+      z-index: 2;
+    } 
+
+    .grid-container {
+      border: 2px solid #000; /* Add border */
+      position: absolute;
+      top: 60px; /* Keep the same y-axis */
+      gap: 0; /* Ensure no gap between grid items */
+      padding: 0; /* Remove padding from the container */
+      margin: 0; /* Remove margin from the container */
+      transform-origin: 0 0; /* Set the scaling origin to the top-left */
+    } 
+    .resizeable-bar {
+        width: 5px; /* Width of the resizable bar */
+        background-color: #000000; /* Initial color of the resizable bar */
+        cursor: ew-resize; /* Cursor for resizing */
+        height: 100%; /* Full height of the parent container */
+        position: absolute;
+        top: 60px;
+        z-index: 1;
+        transition: background-color 0.3s ease; /* Smooth transition for color change */
+    }
+
+    .resizeable-bar:hover {
+        background-color: red; /* Color when hovered */
+    }
+
+    .button {
+      background-color: #FFC107; /* Amber color */
+      color: #000; /* Text color */
+      border: none;
+      border-radius: 4px; /* Rounded corners */
+      font-size: 16px; /* Font size */
+      cursor: pointer; /* Change cursor to pointer */
+      transition: background-color 0.3s, transform 0.2s; /* Smooth transition for color and scale */
+      position: absolute;
+    }
+
+    .button:hover {
+      background-color: #80ff00; /* Darker amber color on hover */
+    }
+
+    .button:active {
+      background-color: #000000; /* Even darker amber color on click */ 
+      color: #6bff4d; /* White text color on click */
+    }
+  </style>
+</head>
+
+<body class="no-scrollbar" mode="maker">
+  <header class="mdl-color--cyan-500">
+    <h1 class="mode-maker">Scratch board game</h1>
+  </header> 
+  <main> 
+    <div id="statsContainer" class="stats"></div>
+
+    <div class="maker">
+      <div>
+        <div class="button">Run code</div>
+      </div>
+    </div>
+    <div class="resizeable-bar"></div>
+    <div class="blockly-editor">
+      <div id="blocklyDiv"></div>  
+    </div>  
+
+    <div class="grid-container" id="grid-container">
+      <!-- Grid items will be dynamically generated here --> 
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/msg/en.js"></script>
+  <script src="scripts/blocks.js"></script>
+  <script src="scripts/music_maker.js"></script>
+  <script src="scripts/main.js"></script> 
+  <script src="scripts/items.js"></script> 
+  <script src="scripts/player.js"></script>  
+  <script src="scripts/launch.js"></script> 
+  <script src="scripts/grid.js"></script> 
+  <script src="scripts/game.js"></script> 
+  <script src="scripts/handlePlayers.js"></script> <!-- Ensure this is loaded before the event listener -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.button').addEventListener('click', handlePlay);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const gridContainer = document.querySelector('.grid-container'); 
+      const resizableBar = document.querySelector('.resizeable-bar');
+      const blocklyEditor = document.querySelector('.blockly-editor');
+      const blocklyDiv = document.querySelector('#blocklyDiv'); // Select the blocklyDiv
+      const button = document.querySelector('.button');  
+      let blocklyGridRatio = 50; 
+
+      function updateBlocklySize() {  
+        // Set blocklyEditor width
+        blocklyEditor.style.width = `${blocklyGridRatio}%`;   
+        resizableBar.style.left = `${blocklyGridRatio}%`;  
+
+        // Set blocklyDiv to 100% of blocklyEditor width
+        blocklyDiv.style.width = '100%'; 
+
+        // Assuming Blockly workspace is initialized and accessible
+        if (Blockly.getMainWorkspace()) {
+          Blockly.svgResize(Blockly.getMainWorkspace());
+        }
+      }
+
+      function positionButton() {
+        const gridContainerRect = gridContainer.getBoundingClientRect();
+        button.style.top = `${gridContainerRect.bottom}px`; // Set button top position to match grid container bottom
+        button.style.left = `${gridContainerRect.left}px`; // Set button left position to match grid container left
+        button.style.width = `${gridContainerRect.width}px`; // Set button width to match grid container 
+      }
+
+      function adjustScale() { 
+        // Get the viewport width and height
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Determine the scaling factor based on the viewport width
+        const scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value
+
+        // Set the scaling factor to the .grid-container
+        gridContainer.style.transform = `scale(${scaleFactor})`;
+
+        // Calculate the left position based on .blockly-editor width
+        const blocklyEditorWidth = blocklyEditor.offsetWidth;
+        const leftPosition = ((blocklyEditorWidth / viewportWidth) * 102);
+        gridContainer.style.left = `${leftPosition}%`;
+      }
+
+      // Initial adjustment
+      updateBlocklySize(); // Update Blockly size
+      adjustScale();
+      positionButton();
+
+      // Adjust size and position on window resize
+      window.addEventListener('resize', function() {
+        adjustScale();
+        positionButton(); // Adjust button position
+        updateBlocklySize(); // Update Blockly size
+      });
+
+      // Resize functionality
+      let isResizing = false;
+
+      resizableBar.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      });
+      function handleMouseMove(e) { 
+        
+        if (isResizing) { 
+            // Get the bounding rect of the blocklyEditor to determine the resizing container
+            const blocklyEditorRect = blocklyEditor.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight; 
+            // Calculate the new width of the blocklyEditor based on the mouse position
+            const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px
+
+            // Calculate the percentage of the new width relative to the viewport width
+            blocklyGridRatio = (newWidth / viewportWidth) * 100;
+
+            // Set the Blockly grid ratio
+            blocklyEditor.style.width = `${blocklyGridRatio}%`;
+
+            // Calculate the scale factor to ensure the grid and button fit within the viewport 
+            
+            const gridContainerRect = gridContainer.getBoundingClientRect();
+            const gridWidth = gridContainerRect.width;
+            const gridHeight = gridContainerRect.height; 
+            
+
+            // Ensure the grid and button always fit within the viewport
+            const scaleFactorWidth = (viewportWidth - newWidth) / gridWidth;
+            const scaleFactorHeight = viewportHeight / gridHeight;
+            // Determine the scaling factor based on the viewport width 
+            console.log("Grid ratio: "+blocklyGridRatio); 
+            let scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value 
+            if(blocklyGridRatio>54) { 
+              scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio*6.5)) -(blocklyGridRatio/100); 
+              console.log("scale factor: "+scaleFactor); 
+              updateBlocklySize();
+              positionButton();
+            }
+
+            // Apply the scale factor to the grid container 
+            console.log("gridContainerRect: " +gridContainerRect); 
+            console.log("gridWidth: " +gridWidth); 
+            console.log("gridHeight: " +gridHeight);  
+            console.log("scale factor Width: " +scaleFactorWidth); 
+            console.log("scale factor Height: " +scaleFactorHeight);  
+            console.log("Scale factor: " +scaleFactor);  
+            console.log("");  
+            gridContainer.style.transform = `scale(${scaleFactor})`;
+            //gridContainer.style.transformOrigin = 'top left';
+
+            // Position the resizable bar at the new width
+            resizableBar.style.left = `${newWidth}px`;
+            gridContainer.style.left = `${blocklyGridRatio}%`;
+
+            // Optionally, update Blockly size if needed
+            updateBlocklySize();
+            positionButton();
+        }
+      }     
+
+
+
+
+      function handleMouseUp() {
+        isResizing = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      }
+    });
+  </script>
+</body>
+</html>
