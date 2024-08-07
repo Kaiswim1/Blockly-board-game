@@ -1,175 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Navigation</title>
-    <link rel="stylesheet" href="styles/mainMenu.css" />
-    <style>
-        /* Import a bubbly font from Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap');
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden; /* Prevent scrollbars */
-            position: relative; /* Required for absolute positioning of pseudo-element */
-        }
+  <title>Blockly for the Web Codelab</title>
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('images/menuBg.jpg'); /* Background image URL */
-            background-size: cover; /* Cover the entire screen */
-            background-position: center; /* Center the background image */
-            background-repeat: no-repeat; /* Prevent repeating the image */
-            opacity: 0.5; /* Adjust opacity here */
-            z-index: -1; /* Place behind all other content */
-        }
+  <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css" />
+  <link rel="stylesheet" href="styles/index.css" />
+  <style>
+    main {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    #blocklyDiv {
+      height: 100%;
+      width: 100%;  
+      z-index: 2;
+    } 
 
-        .header {
-            width: 100%; /* Full width of the container */
-            height: 70px; /* Height for the header */
-            background-color: #38aacd; /* Green background for the header */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white; /* Text color */
-            font-family: 'Bubblegum Sans', cursive;
-            font-size: 24px;
-            border-top-left-radius: 10px; /* Rounded top-left corner */
-            border-top-right-radius: 10px; /* Rounded top-right corner */
-            position: absolute; /* Absolute positioning to place it at the top */
-            top: 0; /* Align at the top of the container */
-            left: 0;
-            z-index: 1;
-            /* Add shadow effect to make it appear lower */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Shadow to create depth effect */
-        }
+    .grid-container {
+      border: 2px solid #000; /* Add border */
+      position: absolute;
+      top: 60px; /* Keep the same y-axis */
+      gap: 0; /* Ensure no gap between grid items */
+      padding: 0; /* Remove padding from the container */
+      margin: 0; /* Remove margin from the container */
+      transform-origin: 0 0; /* Set the scaling origin to the top-left */
+    } 
+    .resizeable-bar {
+        width: 5px; /* Width of the resizable bar */
+        background-color: #000000; /* Initial color of the resizable bar */
+        cursor: ew-resize; /* Cursor for resizing */
+        height: 100%; /* Full height of the parent container */
+        position: absolute;
+        top: 60px;
+        z-index: 1;
+        transition: background-color 0.3s ease; /* Smooth transition for color change */
+    }
 
-        .container {
-            width: 400px; /* Width of the container */
-            height: 200px; /* Height of the container */
-            border: 3px solid #6e28a7; /* Solid green border */
-            border-radius: 15px; /* Rounded corners */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #a0a0a066; /* Default background color */
-            transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transition for the glow effect and background color */
-            position: relative;
-            z-index: 2;
-            padding-top: 70px; /* Ensure content does not overlap with the header */
-        }
+    .resizeable-bar:hover {
+        background-color: red; /* Color when hovered */
+    }
 
-        .container:hover {
-            box-shadow: 0 0 15px 5px rgba(40, 87, 167, 0.6); /* Subtle green glow effect on hover */
-            background-color: #eaf5a4; 
-        }
+    .button {
+      background-color: #FFC107; /* Amber color */
+      color: #000; /* Text color */
+      border: none;
+      border-radius: 4px; /* Rounded corners */
+      font-size: 16px; /* Font size */
+      cursor: pointer; /* Change cursor to pointer */
+      transition: background-color 0.3s, transform 0.2s; /* Smooth transition for color and scale */
+      position: absolute;
+    }
 
-        .button, #optionsDropdown {
-            margin: 10px;
-            width: 80%; /* Set width to 80% of the container */
-            height: 50px; /* Set a fixed height */
-            font-size: 18px; /* Adjust font size */
-            font-family: 'Bubblegum Sans', cursive; /* Apply the bubbly font */
-        }
+    .button:hover {
+      background-color: #80ff00; /* Darker amber color on hover */
+    }
 
-        .button {
-            background-color: #9232ff; /* Green background for the button */
-            color: white; /* Text color */
-            border: none; /* Remove default border */
-            border-radius: 10px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: background-color 0.3s ease; /* Smooth transition for background color */
-        }
-
-        .button:hover {
-            background-color: #8400ff; /* Darker green background on hover */
-        }
-
-        #optionsDropdown {
-            background-color: #ffffff; /* Default background color */
-            transition: background-color 0.3s ease; /* Smooth transition for background color */
-        }
-
-        #optionsDropdown:hover {
-            background-color: #e0f7fa; /* Pastel light blue background on hover */
-        }
-
-        .wrapper {
-            display: flex;
-            justify-content: space-between;
-            width: 100%; /* Full width of the viewport */
-            max-width: 850px; /* Ensure content doesn't stretch too much */
-            padding: 0 20px; /* Optional: padding for spacing */
-            position: relative; /* Relative positioning for centering the image */
-        }
-
-        .image-container {
-            width: 60%; /* Adjust as needed */
-            margin-bottom: 60px; /* Space below the image */
-        }
-
-        .image-container img {
-            width: 100%; /* Make image fill the container */
-            height: auto; /* Maintain aspect ratio */
-        }
-        
-    </style>
+    .button:active {
+      background-color: #000000; /* Even darker amber color on click */ 
+      color: #6bff4d; /* White text color on click */
+    }
+  </style>
 </head>
-<body>
-    <div class="image-container">
-        <img src="images/gamelogo.png" alt="Game Image">
+
+<body class="no-scrollbar" mode="maker">
+  <header class="mdl-color--cyan-500">
+    <h1 class="mode-maker">Scratch board game</h1>
+  </header> 
+  <main> 
+    <div id="statsContainer" class="stats"></div>
+
+    <div class="maker">
+      <div>
+        <div class="button">Run code</div>
+      </div>
     </div>
-    <div class="wrapper">
-        <div class="container">
-            <div class="header">Local</div>
-            <button class="button">Play</button>
-            <select id="optionsDropdown">
-                <option value="option1">Solo</option>
-                <option value="option2">2 players</option>
-                <option value="option3">3 players</option>
-                <option value="option4">4 players</option>
-                <!-- Add more options as needed -->
-            </select>
-        </div>
-        <div class="container">
-            <div class="header">Online</div>
-            <button class="button">Search For Players</button>
-            <select id="optionsDropdown">
-                <option value="option1">2 players</option>
-                <option value="option2">3 players</option>
-                <option value="option3">4 players</option>
-                <!-- Add more options as needed -->
-            </select>
-        </div>
+    <div class="resizeable-bar"></div>
+    <div class="blockly-editor">
+      <div id="blocklyDiv"></div>  
+    </div>  
+
+    <div class="grid-container" id="grid-container">
+      <!-- Grid items will be dynamically generated here --> 
     </div>
-    
-    <script>
-        document.querySelectorAll('.button').forEach(button => {
-            button.addEventListener('click', function() {
-                if (button.textContent === "Search For Players") {
-                    alert("Coming Soon");
-                    return;
-                }
-    
-                const numPlayers = button.nextElementSibling.value;
-                localStorage.setItem('numPlayers', numPlayers);
-                window.location.href = 'gameplay.html'; // Change to your second HTML file name
-            });
-        });
-    </script>
-    
+  </main>
+
+  <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/msg/en.js"></script>
+  <script src="scripts/blocks.js"></script>
+  <script src="scripts/music_maker.js"></script>
+  <script src="scripts/main.js"></script> 
+  <script src="scripts/items.js"></script> 
+  <script src="scripts/player.js"></script>  
+  <script src="scripts/launch.js"></script> 
+  <script src="scripts/grid.js"></script> 
+  <script src="scripts/game.js"></script> 
+  <script src="scripts/handlePlayers.js"></script> <!-- Ensure this is loaded before the event listener -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.button').addEventListener('click', handlePlay);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const gridContainer = document.querySelector('.grid-container'); 
+      const resizableBar = document.querySelector('.resizeable-bar');
+      const blocklyEditor = document.querySelector('.blockly-editor');
+      const blocklyDiv = document.querySelector('#blocklyDiv'); // Select the blocklyDiv
+      const button = document.querySelector('.button');  
+      let blocklyGridRatio = 50; 
+
+      function updateBlocklySize() {  
+        // Set blocklyEditor width
+        blocklyEditor.style.width = `${blocklyGridRatio}%`;   
+        resizableBar.style.left = `${blocklyGridRatio}%`;  
+
+        // Set blocklyDiv to 100% of blocklyEditor width
+        blocklyDiv.style.width = '100%'; 
+
+        // Assuming Blockly workspace is initialized and accessible
+        if (Blockly.getMainWorkspace()) {
+          Blockly.svgResize(Blockly.getMainWorkspace());
+        }
+      }
+
+      function positionButton() {
+        const gridContainerRect = gridContainer.getBoundingClientRect();
+        button.style.top = `${gridContainerRect.bottom}px`; // Set button top position to match grid container bottom
+        button.style.left = `${gridContainerRect.left}px`; // Set button left position to match grid container left
+        button.style.width = `${gridContainerRect.width}px`; // Set button width to match grid container 
+      }
+
+      function adjustScale() { 
+        // Get the viewport width and height
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Determine the scaling factor based on the viewport width
+        const scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value
+
+        // Set the scaling factor to the .grid-container
+        gridContainer.style.transform = `scale(${scaleFactor})`;
+
+        // Calculate the left position based on .blockly-editor width
+        const blocklyEditorWidth = blocklyEditor.offsetWidth;
+        const leftPosition = ((blocklyEditorWidth / viewportWidth) * 102);
+        gridContainer.style.left = `${leftPosition}%`;
+      }
+
+      // Initial adjustment
+      updateBlocklySize(); // Update Blockly size
+      adjustScale();
+      positionButton();
+
+      // Adjust size and position on window resize
+      window.addEventListener('resize', function() {
+        adjustScale();
+        positionButton(); // Adjust button position
+        updateBlocklySize(); // Update Blockly size
+      });
+
+      // Resize functionality
+      let isResizing = false;
+
+      resizableBar.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      });
+      function handleMouseMove(e) { 
+        
+        if (isResizing) { 
+            // Get the bounding rect of the blocklyEditor to determine the resizing container
+            const blocklyEditorRect = blocklyEditor.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight; 
+            // Calculate the new width of the blocklyEditor based on the mouse position
+            const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px
+
+            // Calculate the percentage of the new width relative to the viewport width
+            blocklyGridRatio = (newWidth / viewportWidth) * 100;
+
+            // Set the Blockly grid ratio
+            blocklyEditor.style.width = `${blocklyGridRatio}%`;
+
+            // Calculate the scale factor to ensure the grid and button fit within the viewport 
+            
+            const gridContainerRect = gridContainer.getBoundingClientRect();
+            const gridWidth = gridContainerRect.width;
+            const gridHeight = gridContainerRect.height; 
+            
+
+            // Ensure the grid and button always fit within the viewport
+            const scaleFactorWidth = (viewportWidth - newWidth) / gridWidth;
+            const scaleFactorHeight = viewportHeight / gridHeight;
+            // Determine the scaling factor based on the viewport width 
+            console.log("Grid ratio: "+blocklyGridRatio); 
+            let scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value 
+            if(blocklyGridRatio>54) { 
+              scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio*6.5)) -(blocklyGridRatio/100); 
+              console.log("scale factor: "+scaleFactor); 
+              updateBlocklySize();
+              positionButton();
+            }
+
+            // Apply the scale factor to the grid container 
+            gridContainer.style.transform = `scale(${scaleFactor})`;
+            //gridContainer.style.transformOrigin = 'top left';
+
+            // Position the resizable bar at the new width
+            resizableBar.style.left = `${newWidth}px`;
+            gridContainer.style.left = `${blocklyGridRatio}%`;
+
+            // Optionally, update Blockly size if needed
+            updateBlocklySize();
+            positionButton();
+        }
+      }     
+
+
+
+
+      function handleMouseUp() {
+        isResizing = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      }
+    });
+  </script>
 </body>
 </html>
+
