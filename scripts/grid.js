@@ -40,35 +40,75 @@ class Grid {
   }
 
   generateGrid() {
+    // Decorate the board first
+    
+
+    // Now generate the grid items
     for (let i = 0; i < this.rows; i++) {
-      for (let j = 0; j < this.cols; j++) {
-        // Create grid item
-        const gridItem = document.createElement('div');
-        gridItem.className = 'grid-item';
-        gridItem.style.position = 'relative'; // Ensure relative positioning
+        for (let j = 0; j < this.cols; j++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.style.position = 'relative'; // Ensure relative positioning
+            
+            // Create and style unique variable span (value 3)
+            const uniqueVariable = document.createElement('span');
+            uniqueVariable.textContent = this.gridArray[i][j];
+            uniqueVariable.className = 'unique-variable';
+            uniqueVariable.style.position = 'absolute'; // Absolute positioning inside relative gridItem
+            uniqueVariable.style.top = '0';
+            uniqueVariable.style.left = '0'; 
+            uniqueVariable.style.fontSize = '15px'; // Adjust size as needed 
+            uniqueVariable.style.zIndex = '10';  
 
-        // Create and style unique variable span (value 3)
-        const uniqueVariable = document.createElement('span');
-        uniqueVariable.textContent = this.gridArray[i][j];
-        uniqueVariable.className = 'unique-variable';
-        uniqueVariable.style.position = 'absolute'; // Absolute positioning inside relative gridItem
-        uniqueVariable.style.top = '0';
-        uniqueVariable.style.left = '0';
-        uniqueVariable.style.fontSize = '10px'; // Adjust size as needed
+            uniqueVariable.style.backgroundColor = 'white'; 
+            uniqueVariable.style.borderRadius = '50%'; // Make it a circle
+            uniqueVariable.style.width = '18px'; // Set width to ensure a circle 
+            uniqueVariable.style.height = '18px'; // Set height to ensure a circle
+            uniqueVariable.style.padding = '0'; // Remove padding as it can affect the shape
+            uniqueVariable.style.opacity = '0.4'; 
+            uniqueVariable.style.display = 'inline-block';
 
-        // Append unique variable to grid item
-        gridItem.appendChild(uniqueVariable);
 
-        // Append grid coordinates (i, j)
-        const gridText = document.createElement('span');
-        gridText.textContent = ` (${i}, ${j})`; // Include the coordinates
-        gridItem.appendChild(gridText);
+            // Append unique variable to grid item
+            gridItem.appendChild(uniqueVariable);
 
-        // Append grid item to container
-        this.container.appendChild(gridItem);
-      }
+            // Append grid coordinates (i, j)
+            const gridText = document.createElement('span');
+            gridText.style.fontSize = '15px';  
+            gridItem.appendChild(gridText);
+
+            // Append grid item to container
+            this.container.appendChild(gridItem); 
+        } 
+        this.decorateBoard("images/top edge.png", "images/bottom edge.png", "images/left edge.png", 
+                          "images/right edge.png", "images/top left.png","images/bottom left.png", 
+                          "images/bottom right.png", "images/top right.png", "images/empty dirt.png"); 
     }
-  } 
+}
+
+  /**
+   * param 
+   */
+  decorateBoard(topEdge, bottomEdge, leftEdge, rightEdge, topLeft, bottomLeft, bottomRight, topRight, dirt) {
+    const gridSize = 8;
+
+    for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+            if(row === 0 && col > 0 && col < gridSize-1)this.#placeImageAtLocation(row, col, topEdge);
+            else if(row === gridSize-1 && col > 0 && col < gridSize-1)this.#placeImageAtLocation(row, col, bottomEdge);
+            else if(col === 0 && row > 0 && row < gridSize-1)this.#placeImageAtLocation(row, col, leftEdge);
+            else if(col === gridSize-1 && row > 0 && row < gridSize-1)this.#placeImageAtLocation(row, col, rightEdge);
+            else if(row===0&&col==0)  this.#placeImageAtLocation(row, col, topLeft);
+            else if(row===gridSize-1&&col==0)  this.#placeImageAtLocation(row, col, bottomLeft); 
+            else if(row===gridSize-1&&col==gridSize-1)  this.#placeImageAtLocation(row, col, bottomRight);
+            else if(row===0&&col==gridSize-1)  this.#placeImageAtLocation(row, col, topRight);
+            else this.#placeImageAtLocation(row, col, dirt);
+            
+        }
+    } 
+}
+
+
 
   placeAllItems(items){
     for(let i of items){
@@ -76,7 +116,7 @@ class Grid {
     }
   } 
 
-  #placeImageAtLocation(row, col, imageUrl, altText = '') {
+  #placeImageAtLocation(row, col, imageUrl, altText = '', brightness = 1) {
     // Get the grid item at the specified row and column
     const gridItem = this.container.children[row * this.cols + col];
     
@@ -93,10 +133,12 @@ class Grid {
         imageElement.style.top = '0';
         imageElement.style.left = '0';
         imageElement.style.width = `50px`;
-        imageElement.style.height = `50px`;
+        imageElement.style.height = `50px`; 
+        imageElement.style.brightness = brightness; 
 
         // Append the image to the grid item
-        gridItem.appendChild(imageElement);
+        gridItem.appendChild(imageElement); 
+        
     }
 } 
 
@@ -257,4 +299,3 @@ class Grid {
     }
   }
 }
-
