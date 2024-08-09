@@ -9,7 +9,17 @@
 
   <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css" />
   <link rel="stylesheet" href="styles/index.css" />
-  <style>
+  <style> 
+  /* Prevent text selection */
+    /* Prevent text selection for everything on the page */
+  html, body {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
+  }
+
+
     main {
       display: flex;
       flex-direction: row;
@@ -70,10 +80,10 @@
         left: 0;
         width: 215px;
         height: 94px;
-        background-color: rgba(255, 0, 0, 0.5); /* Semi-transparent background */
-        opacity: 0.8; /* Optional: makes it slightly transparent */
+        background-color: rgba(228, 228, 228); /* Semi-transparent background */
         pointer-events: auto; /* Enable pointer events to block clicks */
-        z-index: 999; /* Ensure it is on top of other elements */
+        z-index: 999; /* Ensure it is on top of other elements */ 
+        display: flex; /*Set to none to hide this div*/
     }
 
 
@@ -120,22 +130,7 @@
   <script src="scripts/handlePlayers.js"></script> <!-- Ensure this is loaded before the event listener -->
   <script> 
 
-      document.addEventListener('DOMContentLoaded', function() {
-          const noClickDiv = document.querySelector('#no-click-div');
-          
-          function showNoClickDiv() {
-              noClickDiv.style.display = 'flex'; // Ensure it is visible
-          }
-
-          function hideNoClickDiv() {
-              noClickDiv.style.display = 'none'; // Hide it when not needed
-          }
-
-          // Call showNoClickDiv() or hideNoClickDiv() based on your logic
-          // For example, show it when a specific action happens
-          document.querySelector('.button').addEventListener('click', showNoClickDiv);
-      });
-
+     
 
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.button').addEventListener('click', handlePlay);
