@@ -1,4 +1,3 @@
-// HandlePlayers.js
 class HandlePlayers {
   #playerTurnI = 0;
   constructor() {
@@ -7,19 +6,20 @@ class HandlePlayers {
 
   nextTurn() {
     this.#playerTurnI++;
-    this.turn = (this.#playerTurnI % game.grid.numOfPlayers)+1;
-    
+    this.turn = (this.#playerTurnI % game.grid.numOfPlayers) + 1;
   }
 }
+
 let handlePlayers = new HandlePlayers();
-(function () {
+
+document.addEventListener('DOMContentLoaded', function () {
   let currentButton;
-  
-  function handlePlay(event) { 
+
+  function handlePlay(event) {
     handleSave(); // Save the workspace before running the code
-    //loadWorkspace(event.target);
+    // loadWorkspace(event.target);
     let code = javascript.javascriptGenerator.workspaceToCode(
-      Blockly.getMainWorkspace(),
+      Blockly.getMainWorkspace()
     );
     code += 'MusicMaker.play();';
     // Eval can be dangerous. For more controlled execution, check
@@ -28,12 +28,12 @@ let handlePlayers = new HandlePlayers();
       eval(code);
     } catch (error) {
       console.log(error);
-    } 
-    workspace.clear();  
-    handlePlayers.nextTurn(); 
+    }
+    workspace.clear();
+    handlePlayers.nextTurn();
   }
 
-  function loadWorkspace(button) { 
+  function loadWorkspace(button) {
     const workspace = Blockly.getMainWorkspace();
     if (button.blocklySave) {
       Blockly.serialization.workspaces.load(button.blocklySave, workspace);
@@ -45,7 +45,7 @@ let handlePlayers = new HandlePlayers();
   function save() {
     if (currentButton) {
       currentButton.blocklySave = Blockly.serialization.workspaces.save(
-        Blockly.getMainWorkspace(),
+        Blockly.getMainWorkspace()
       );
     }
   }
@@ -54,10 +54,8 @@ let handlePlayers = new HandlePlayers();
     save();
   }
 
-  
-
-  function enableMakerMode() { 
-    handleSave(); 
+  function enableMakerMode() {
+    handleSave();
     document.body.setAttribute('mode', 'maker');
     document.querySelectorAll('.button').forEach((btn) => {
       btn.addEventListener('click', handlePlay);
@@ -71,11 +69,31 @@ let handlePlayers = new HandlePlayers();
     loadWorkspace(currentButton);
   }
 
-  //document.querySelector('#edit').addEventListener('click', enableEditMode);
-  //document.querySelector('#done').addEventListener('click', enableMakerMode);
+  function countBlocksOfType(blockType) {
+    const workspace = Blockly.getMainWorkspace();
+    if (!workspace) {
+      console.error('Workspace is not available');
+      
+      return 0;
+    }
+    const allBlocks = workspace.getAllBlocks();
+    return allBlocks.filter(block => block.type === blockType).length;
+  }
 
-  enableMakerMode();
+  function updateBlockCount() {
+    const noClickDiv = document.querySelector('#no-click-div');
+    console.log(`Number of 'move_step' blocks: ${countBlocksOfType('move_step')}`); 
+    console.log(`Number of 'go_to' blocks: ${countBlocksOfType('go_to')}`);  
+    const repeatCount = countBlocksOfType('controls_repeat_ext'); 
+    if (repeatCount <= 0) {
+      noClickDiv.style.display = 'none'; // Hide div
+    } else {
+      noClickDiv.style.display = 'flex'; // Show div
+    }
+    // You can update a UI element with this count if needed
+  }
 
+  // Initialize Blockly workspace and set up event listeners
   const toolbox = {
     kind: 'flyoutToolbox',
     contents: [
@@ -93,14 +111,10 @@ let handlePlayers = new HandlePlayers();
           },
         },
       },
-      /*{
-        kind: 'block',
-        type: 'print',
-      },*/
       {
         kind: 'block',
         type: 'go_to',
-      }, 
+      },
       {
         kind: 'block',
         type: 'move_step',
@@ -110,21 +124,39 @@ let handlePlayers = new HandlePlayers();
         type: 'leave_spike',
       },
       {
-        kind: 'block', 
+        kind: 'block',
         type: 'point_in_direction',
-      }
+      },
     ],
   };
 
-  let workspace = Blockly.inject('blocklyDiv', {
+  const workspace = Blockly.inject('blocklyDiv', {
     toolbox: toolbox,
     scrollbars: true,
     horizontalLayout: false,
     toolboxPosition: 'start',
   });
 
-  // Save workspace every 5 seconds
+  // Ensure the workspace is correctly initialized
+  if (workspace) {
+    workspace.addChangeListener(function (event) {
+      if (event.type === Blockly.Events.BLOCK_CREATE || event.type === Blockly.Events.BLOCK_DELETE) {
+        updateBlockCount();
+      }
+    });
+  } else {
+    console.error('Failed to initialize Blockly workspace');
+  }
 
-  // Run the code when the button with text "1" is clicked
+  // Initial block count
+  updateBlockCount();
+
+  // Save workspace every 5 seconds
+  //setInterval(handleSave, 5000);
+
+  // Run the code when the button with text "run code" is clicked
   document.querySelector('.button').addEventListener('click', handlePlay);
-})();
+
+  // Automatically switch to Maker Mode
+  enableMakerMode();
+});
