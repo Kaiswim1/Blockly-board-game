@@ -63,7 +63,22 @@
     .button:active {
       background-color: #000000; /* Even darker amber color on click */ 
       color: #6bff4d; /* White text color on click */
+    } 
+    .no-click {
+        position: fixed; /* Make it cover the entire viewport */
+        top: 100;
+        left: 0;
+        width: 215px;
+        height: 94px;
+        background-color: rgba(255, 0, 0, 0.5); /* Semi-transparent background */
+        opacity: 0.8; /* Optional: makes it slightly transparent */
+        pointer-events: auto; /* Enable pointer events to block clicks */
+        z-index: 999; /* Ensure it is on top of other elements */
     }
+
+
+
+
   </style>
 </head>
 
@@ -73,7 +88,7 @@
   </header> 
   <main> 
     <div id="statsContainer" class="stats"></div>
-
+    
     <div class="maker">
       <div>
         <div class="button">Run code</div>
@@ -82,8 +97,9 @@
     <div class="resizeable-bar"></div>
     <div class="blockly-editor">
       <div id="blocklyDiv"></div>  
-    </div>  
-
+    </div>   
+    <div id="no-click-div" class="no-click">
+    </div>
     <div class="grid-container" id="grid-container">
       <!-- Grid items will be dynamically generated here --> 
     </div>
@@ -102,7 +118,25 @@
   <script src="scripts/grid.js"></script> 
   <script src="scripts/game.js"></script> 
   <script src="scripts/handlePlayers.js"></script> <!-- Ensure this is loaded before the event listener -->
-  <script>
+  <script> 
+
+      document.addEventListener('DOMContentLoaded', function() {
+          const noClickDiv = document.querySelector('#no-click-div');
+          
+          function showNoClickDiv() {
+              noClickDiv.style.display = 'flex'; // Ensure it is visible
+          }
+
+          function hideNoClickDiv() {
+              noClickDiv.style.display = 'none'; // Hide it when not needed
+          }
+
+          // Call showNoClickDiv() or hideNoClickDiv() based on your logic
+          // For example, show it when a specific action happens
+          document.querySelector('.button').addEventListener('click', showNoClickDiv);
+      });
+
+
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.button').addEventListener('click', handlePlay);
     });
@@ -184,7 +218,8 @@
             const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px
 
             // Calculate the percentage of the new width relative to the viewport width
-            blocklyGridRatio = (newWidth / viewportWidth) * 100;
+            blocklyGridRatio = (newWidth / viewportWidth) * 100; 
+            if(blocklyGridRatio < 50 || blocklyGridRatio > 80) return; 
 
             // Set the Blockly grid ratio
             blocklyEditor.style.width = `${blocklyGridRatio}%`;
@@ -220,7 +255,7 @@
             gridContainer.style.transform = `scale(${scaleFactor})`;
             //gridContainer.style.transformOrigin = 'top left';
 
-            // Position the resizable bar at the new width
+            // Position the resizable bar at the new width 
             resizableBar.style.left = `${newWidth}px`;
             gridContainer.style.left = `${blocklyGridRatio}%`;
 
@@ -242,3 +277,4 @@
   </script>
 </body>
 </html>
+
