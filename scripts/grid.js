@@ -12,17 +12,19 @@ class Grid {
     
     //spike.render(this.container.children[player.row * this.cols + player.col]); 
 
-    // Create players 
+    // Create players  
+
+    //blockUpgrades: name : amount allowed for one play. 
     this.playerConfigs = [
-      { name: 'player1', x: 5, y: 2, image: 'images/guy.png', rotation: 180, coins: 100, health: 100},
-      { name: 'player2', x: 2, y: 2, image: 'images/guy2.png', rotation: 270, coins: 100, health: 100},
-      { name: 'player3', x: 2, y: 5, image: 'images/guy3.png', rotation: 0, coins: 100, health: 100},
-      { name: 'player4', x: 5, y: 5, image: 'images/guy4.png', rotation: 90, coins: 100, health: 100}
+      { name: 'player1', x: 5, y: 2, image: 'images/guy.png', rotation: 180, coins: 100, health: 100,  blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
+      { name: 'player2', x: 2, y: 2, image: 'images/guy2.png', rotation: 270, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
+      { name: 'player3', x: 2, y: 5, image: 'images/guy3.png', rotation: 0, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
+      { name: 'player4', x: 5, y: 5, image: 'images/guy4.png', rotation: 90, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}}
     ];
     
     for (let i = 0; i < numOfPlayers; i++) {
       const config = this.playerConfigs[i];
-      const player = new Player(config.name, config.x, config.y, config.image, config.rotation, config.coins, config.health);
+      const player = new Player(config.name, config.x, config.y, config.image, config.rotation, config.coins, config.health, config.blockUpgrades);
       this[`player${i + 1}`] = player;
       this.placePlayer(player);
     }    
@@ -299,3 +301,5 @@ class Grid {
     }
   }
 }
+
+
