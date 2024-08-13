@@ -80,37 +80,18 @@ document.addEventListener('DOMContentLoaded', function () {
     return allBlocks.filter(block => block.type === blockType).length;
   }
 
-  function updateBlockCount() {
-    const noClickDiv = document.querySelector('#no-click-div');
-    console.log(`Number of 'move_step' blocks: ${countBlocksOfType('move_step')}`); 
-    console.log(`Number of 'go_to' blocks: ${countBlocksOfType('go_to')}`);  
-    const repeatCount = countBlocksOfType('controls_repeat_ext'); 
-    if (repeatCount <= 0) {
-      noClickDiv.style.display = 'none'; // Hide div
-    } else {
-      noClickDiv.style.display = 'flex'; // Show div
-    }
-    // You can update a UI element with this count if needed
+  function updateBlockCount() {  
+    console.log("rer2: "+game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["repeat"]); 
+    document.querySelector('#no-click-repeat').style.display = countBlocksOfType('controls_repeat_ext') <= game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["repeat"] ? 'none' : 'flex'; 
+    document.querySelector('#no-click-move-step').style.display = countBlocksOfType('move_step') <= 0 ? 'none' : 'flex'; 
+    document.querySelector('#no-click-leave-spike').style.display = countBlocksOfType('leave_spike') <= 0 ? 'none' : 'flex'; 
+    document.querySelector('#no-click-point-in-direction').style.display = countBlocksOfType('point_in_direction') <= 0 ? 'none' : 'flex';
   }
 
   // Initialize Blockly workspace and set up event listeners
   const toolbox = {
     kind: 'flyoutToolbox',
     contents: [
-      {
-        kind: 'block',
-        type: 'controls_repeat_ext',
-        inputs: {
-          TIMES: {
-            shadow: {
-              type: 'math_number',
-              fields: {
-                NUM: 5,
-              },
-            },
-          },
-        },
-      },
       {
         kind: 'block',
         type: 'go_to',
@@ -127,8 +108,23 @@ document.addEventListener('DOMContentLoaded', function () {
         kind: 'block',
         type: 'point_in_direction',
       },
+      {
+        kind: 'block',
+        type: 'controls_repeat_ext',
+        inputs: {
+          TIMES: {
+            shadow: {
+              type: 'math_number',
+              fields: {
+                NUM: 5,
+              },
+            },
+          },
+        },
+      },
     ],
   };
+  
 
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox: toolbox,
