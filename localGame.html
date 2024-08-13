@@ -64,31 +64,86 @@
       cursor: pointer; /* Change cursor to pointer */
       transition: background-color 0.3s, transform 0.2s; /* Smooth transition for color and scale */
       position: absolute;
-    }
+      top: 50px; /* Adjust top position */
+      left: 50px; /* Adjust left position */
+  }
 
-    .button:hover {
+  .button:hover {
       background-color: #80ff00; /* Darker amber color on hover */
-    }
+  }
+
+  .upgradeBox{
+      position: absolute;
+      top: calc(50px + 30px + 10px); /* Button top + button height + margin */
+      left: 50px; /* Align with the button's left position */
+      background-color: lightgreen; /* Background color for visibility */
+      width: 200px; /* Adjust width as needed */
+      height: 100px; /* Adjust height as needed */
+  }
+
 
     .button:active {
       background-color: #000000; /* Even darker amber color on click */ 
       color: #6bff4d; /* White text color on click */
     } 
-    .no-click {
+    .no-click-repeat {
         position: fixed; /* Make it cover the entire viewport */
-        top: 100;
+        top: 284px;
         left: 0;
-        width: 215px;
+        width: 180px;
         height: 94px;
         background-color: rgba(228, 228, 228); /* Semi-transparent background */
         pointer-events: auto; /* Enable pointer events to block clicks */
         z-index: 999; /* Ensure it is on top of other elements */ 
         display: flex; /*Set to none to hide this div*/
-    }
-
-
-
-
+    } 
+    .no-click-move-step {
+        position: fixed; /* Make it cover the entire viewport */
+        top: 117px;
+        left: 0;
+        width: 180px;
+        height: 44px;
+        background-color: rgba(228, 228, 228); /* Semi-transparent background */
+        pointer-events: auto; /* Enable pointer events to block clicks */
+        z-index: 999; /* Ensure it is on top of other elements */ 
+        display: flex; /*Set to none to hide this div*/
+    } 
+    .no-click-leave-spike {
+        position: fixed; /* Make it cover the entire viewport */
+        top: 172px;
+        left: 0;
+        width: 180px;
+        height: 44px;
+        background-color: rgba(228, 228, 228); /* Semi-transparent background */
+        pointer-events: auto; /* Enable pointer events to block clicks */
+        z-index: 999; /* Ensure it is on top of other elements */ 
+        display: flex; /*Set to none to hide this div*/
+    } 
+    .no-click-point-in-direction {
+        position: fixed; /* Make it cover the entire viewport */
+        top: 227px;
+        left: 0;
+        width: 190px;
+        height: 44px;
+        background-color: rgba(228, 228, 228); /* Semi-transparent background */
+        pointer-events: auto; /* Enable pointer events to block clicks */
+        z-index: 999; /* Ensure it is on top of other elements */ 
+        display: flex; /*Set to none to hide this div*/
+    }  
+    .stats {
+      position: fixed;
+      top: 115px;
+      right: 0; /* Align the right edge of the element with the right side of the window */
+      width: 100px;
+      height: 475px;
+      background-color: rgba(100, 100, 100, 0.478);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+      z-index: 1000; /* Ensure it stays above other elements */
+    } 
+    
   </style>
 </head>
 
@@ -108,11 +163,20 @@
     <div class="blockly-editor">
       <div id="blocklyDiv"></div>  
     </div>   
-    <div id="no-click-div" class="no-click">
-    </div>
+    <div id="no-click-repeat" class="no-click-repeat"></div> 
+    <div id="no-click-move-step" class="no-click-move-step"></div>  
+    <div id="no-click-leave-spike" class="no-click-leave-spike"></div>  
+    <div id="no-click-point-in-direction" class="no-click-point-in-direction"></div> 
     <div class="grid-container" id="grid-container">
       <!-- Grid items will be dynamically generated here --> 
     </div>
+    <div class="upgradeBox">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>     
   </main>
 
   <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
@@ -121,10 +185,10 @@
   <script src="https://unpkg.com/blockly/msg/en.js"></script>
   <script src="scripts/blocks.js"></script>
   <script src="scripts/music_maker.js"></script>
+  <script src="scripts/launch.js"></script> 
   <script src="scripts/main.js"></script> 
   <script src="scripts/items.js"></script> 
   <script src="scripts/player.js"></script>  
-  <script src="scripts/launch.js"></script> 
   <script src="scripts/grid.js"></script> 
   <script src="scripts/game.js"></script> 
   <script src="scripts/handlePlayers.js"></script> <!-- Ensure this is loaded before the event listener -->
@@ -133,7 +197,7 @@
      
 
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.button').addEventListener('click', handlePlay);
+      document.querySelector('.button').addEventListener('click', handlePlay); 
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -141,7 +205,9 @@
       const resizableBar = document.querySelector('.resizeable-bar');
       const blocklyEditor = document.querySelector('.blockly-editor');
       const blocklyDiv = document.querySelector('#blocklyDiv'); // Select the blocklyDiv
-      const button = document.querySelector('.button');  
+      const button = document.querySelector('.button');   
+      const upgradeBox = document.querySelector('.upgradeBox'); 
+      const stats = document.querySelector('.stats'); 
       let blocklyGridRatio = 50; 
 
       function updateBlocklySize() {  
@@ -163,7 +229,44 @@
         button.style.top = `${gridContainerRect.bottom}px`; // Set button top position to match grid container bottom
         button.style.left = `${gridContainerRect.left}px`; // Set button left position to match grid container left
         button.style.width = `${gridContainerRect.width}px`; // Set button width to match grid container 
-      }
+      } 
+
+      function positionUpgradeBox(){
+        const gridContainerRect = gridContainer.getBoundingClientRect(); 
+        const computedStyle = getComputedStyle(button);
+        const buttonHeight = parseInt(computedStyle.height, 10);
+        console.log("Button height: " + buttonHeight); 
+        upgradeBox.style.top = `${gridContainerRect.bottom + buttonHeight}px`; 
+        upgradeBox.style.left = `${gridContainerRect.left}px`; 
+        upgradeBox.style.width = `${gridContainerRect.width}px`;   
+        const viewportHeight = window.innerHeight;
+        const upgradeBoxTop = gridContainerRect.bottom + buttonHeight;
+        const upgradeBoxHeight = viewportHeight - upgradeBoxTop;
+
+        upgradeBox.style.height = `${upgradeBoxHeight}px`;
+
+      } 
+      function positionStats() {
+        const gridContainerRect = gridContainer.getBoundingClientRect();  
+        const computedStyle = getComputedStyle(button);
+        const buttonHeight = parseInt(computedStyle.height, 10);
+        
+        // Position `stats` element
+        stats.style.left = `${gridContainerRect.right}px`;
+        stats.style.top = `${gridContainerRect.top}px`;
+        
+        // Calculate the height of `stats`
+        const viewportHeight = window.innerHeight;
+        const upgradeBoxTop = gridContainerRect.height + buttonHeight;
+        const upgradeBoxHeight = viewportHeight - upgradeBoxTop;
+        stats.style.height = `${gridContainerRect.height + buttonHeight + upgradeBoxHeight}px`;
+        
+        // Set the width of `stats` to ensure it always touches the right edge of the screen
+        const viewportWidth = window.innerWidth;
+        const statsWidth = viewportWidth - gridContainerRect.right;
+        stats.style.width = `${statsWidth}px`;
+    }
+
 
       function adjustScale() { 
         // Get the viewport width and height
@@ -185,13 +288,17 @@
       // Initial adjustment
       updateBlocklySize(); // Update Blockly size
       adjustScale();
-      positionButton();
+      positionButton(); 
+      positionUpgradeBox();  
+      positionStats(); 
 
       // Adjust size and position on window resize
       window.addEventListener('resize', function() {
         adjustScale();
         positionButton(); // Adjust button position
-        updateBlocklySize(); // Update Blockly size
+        positionUpgradeBox(); 
+        updateBlocklySize(); // Update Blockly size 
+        positionStats(); 
       });
 
       // Resize functionality
@@ -236,7 +343,9 @@
               scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio*6.5)) -(blocklyGridRatio/100); 
               console.log("scale factor: "+scaleFactor); 
               updateBlocklySize();
-              positionButton();
+              positionButton(); 
+              positionUpgradeBox();  
+              positionStats(); 
             }
 
             // Apply the scale factor to the grid container 
@@ -256,7 +365,9 @@
 
             // Optionally, update Blockly size if needed
             updateBlocklySize();
-            positionButton();
+            positionButton(); 
+            positionUpgradeBox(); 
+            positionStats(); 
         }
       }     
 
