@@ -1,4 +1,5 @@
-class Player {
+class Player { 
+
     constructor(name, row, col, image, rotationAngle, coins) {
       this.name = name;
       this.row = row;
@@ -6,7 +7,8 @@ class Player {
       this.coins = coins; 
       this.health = 100;  
       this.rotationAngle = rotationAngle; 
-      this.image = image; 
+      this.image = image;  
+      this.blockUpgrades = {"go_to": 1, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":0}; 
     }
   
     move(row, col) {
