@@ -310,66 +310,60 @@
         document.addEventListener('mouseup', handleMouseUp);
       });
       function handleMouseMove(e) { 
+    if (isResizing) { 
+        // Get the bounding rect of the blocklyEditor to determine the resizing container
+        const blocklyEditorRect = blocklyEditor.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;  
+        const stats = document.querySelector(".stats"); 
+        const statsWidth = parseInt(stats.style.width, 10); 
+        console.log("818: " + statsWidth); 
         
-        if (isResizing) { 
-            // Get the bounding rect of the blocklyEditor to determine the resizing container
-            const blocklyEditorRect = blocklyEditor.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight; 
-            // Calculate the new width of the blocklyEditor based on the mouse position
-            const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px
+        // Calculate the new width of the blocklyEditor based on the mouse position
+        const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px 
+        const currentWidth = blocklyEditorRect.width; // Get current width of blocklyEditor
+        
+        console.log("Width of stats bar: " + statsWidth);   
+        
+        // Allow leftward movement but prevent rightward movement when statsWidth is <= 118 pixels
+        if (statsWidth <= 118 && newWidth > currentWidth) return;
+        else if(blocklyGridRatio < 50 && newWidth < currentWidth) return; 
 
-            // Calculate the percentage of the new width relative to the viewport width
-            blocklyGridRatio = (newWidth / viewportWidth) * 100; 
-            if(blocklyGridRatio < 50 || blocklyGridRatio > 80) return; 
+        // Set the Blockly grid ratio
+        blocklyGridRatio = (newWidth / viewportWidth) * 100; 
+        blocklyEditor.style.width = `${blocklyGridRatio}%`;
 
-            // Set the Blockly grid ratio
-            blocklyEditor.style.width = `${blocklyGridRatio}%`;
+        // Calculate the scale factor to ensure the grid and button fit within the viewport 
+        const gridContainerRect = gridContainer.getBoundingClientRect();
+        const gridWidth = gridContainerRect.width;
+        const gridHeight = gridContainerRect.height;  
+       
+        // Ensure the grid and button always fit within the viewport
+        const scaleFactorWidth = (viewportWidth - newWidth) / gridWidth;
+        const scaleFactorHeight = viewportHeight / gridHeight;
 
-            // Calculate the scale factor to ensure the grid and button fit within the viewport 
-            
-            const gridContainerRect = gridContainer.getBoundingClientRect();
-            const gridWidth = gridContainerRect.width;
-            const gridHeight = gridContainerRect.height; 
-            
-
-            // Ensure the grid and button always fit within the viewport
-            const scaleFactorWidth = (viewportWidth - newWidth) / gridWidth;
-            const scaleFactorHeight = viewportHeight / gridHeight;
-            // Determine the scaling factor based on the viewport width 
-            console.log("Grid ratio: "+blocklyGridRatio); 
-            let scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value 
-            if(blocklyGridRatio>54) { 
-              scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio*6.5)) -(blocklyGridRatio/100); 
-              console.log("scale factor: "+scaleFactor); 
-              updateBlocklySize();
-              positionButton(); 
-              positionUpgradeBox();  
-              positionStats(); 
-            }
-
-            // Apply the scale factor to the grid container 
-            console.log("gridContainerRect: " +gridContainerRect); 
-            console.log("gridWidth: " +gridWidth); 
-            console.log("gridHeight: " +gridHeight);  
-            console.log("scale factor Width: " +scaleFactorWidth); 
-            console.log("scale factor Height: " +scaleFactorHeight);  
-            console.log("Scale factor: " +scaleFactor);  
-            console.log("");  
-            gridContainer.style.transform = `scale(${scaleFactor})`;
-            //gridContainer.style.transformOrigin = 'top left';
-
-            // Position the resizable bar at the new width 
-            resizableBar.style.left = `${newWidth}px`;
-            gridContainer.style.left = `${blocklyGridRatio}%`;
-
-            // Optionally, update Blockly size if needed
-            updateBlocklySize();
-            positionButton(); 
-            positionUpgradeBox(); 
-            positionStats(); 
+        let scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value 
+        if (blocklyGridRatio > 54) { 
+            scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio * 6.5)) - (blocklyGridRatio / 100); 
+            console.log("Scale factor: " + scaleFactor); 
         }
-      }     
+
+        // Apply the scale factor to the grid container 
+        gridContainer.style.transform = `scale(${scaleFactor})`;
+
+        // Position the resizable bar at the new width 
+        resizableBar.style.left = `${newWidth}px`;
+        gridContainer.style.left = `${blocklyGridRatio}%`;
+
+        // Optionally, update Blockly size if needed
+        updateBlocklySize();
+        positionButton(); 
+        positionUpgradeBox(); 
+        positionStats(); 
+    }
+}
+
+
 
 
 
