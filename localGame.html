@@ -384,7 +384,7 @@
         console.log("Width of stats bar: " + statsWidth);   
         
         // Allow leftward movement but prevent rightward movement when statsWidth is <= 118 pixels
-        if (statsWidth <= 95 && newWidth > currentWidth) return;
+        if (statsWidth <= 85 && newWidth > currentWidth) return;
         else if(blocklyGridRatio < 50 && newWidth < currentWidth) return; 
 
         // Set the Blockly grid ratio
@@ -435,4 +435,3 @@
   </script>
 </body>
 </html>
-
