@@ -1,5 +1,6 @@
 
 
+
 class Grid {
   constructor(rows, cols, containerId, numOfPlayers) {
     this.rows = rows;
@@ -16,10 +17,10 @@ class Grid {
 
     //blockUpgrades: name : amount allowed for one play. 
     this.playerConfigs = [
-      { name: 'player1', x: 5, y: 2, image: 'images/guy.png', rotation: 180, coins: 100, health: 100,  blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
-      { name: 'player2', x: 2, y: 2, image: 'images/guy2.png', rotation: 270, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
-      { name: 'player3', x: 2, y: 5, image: 'images/guy3.png', rotation: 0, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}},
-      { name: 'player4', x: 5, y: 5, image: 'images/guy4.png', rotation: 90, coins: 100, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direciton":0, "repeat":1}}
+      { name: 'player1', x: 5, y: 2, image: 'images/guy.png', rotation: 180, coins: 0, health: 100,  blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direction":0, "repeat":0}},
+      { name: 'player2', x: 2, y: 2, image: 'images/guy2.png', rotation: 270, coins: 0, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direction":0, "repeat":0}},
+      { name: 'player3', x: 2, y: 5, image: 'images/guy3.png', rotation: 0, coins: 0, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direction":0, "repeat":0}},
+      { name: 'player4', x: 5, y: 5, image: 'images/guy4.png', rotation: 90, coins: 0, health: 100, blockUpgrades:{"go_to": 5, "move_step":0, "leave_spike":0, "point_in_direction":0, "repeat":0}}
     ];
     
     for (let i = 0; i < numOfPlayers; i++) {
@@ -116,7 +117,9 @@ class Grid {
     for(let i of items){
       this.#placeImageAtLocation(i.row, i.col, i.imagePath, 'img'); 
     }
-  } 
+  }  
+
+  
 
   #placeImageAtLocation(row, col, imageUrl, altText = '', brightness = 1) {
     // Get the grid item at the specified row and column
@@ -256,15 +259,12 @@ class Grid {
   }
 
   step(player) { 
-    if(player.coins>2){ 
-      player.coins-=3; 
       if(player.row + 1 <= 7) {
         this.#transformPlayer(player); 
         player.step(player.rotationAngle);
         this.placePlayer(player);
       }   
     this.updatePlayerStats(); 
-    }
   }
 
   updatePlayerStats() {
@@ -301,5 +301,4 @@ class Grid {
     }
   }
 }
-
 
