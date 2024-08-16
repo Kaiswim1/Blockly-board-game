@@ -220,12 +220,12 @@
       <!-- Grid items will be dynamically generated here --> 
     </div>
     <div class="upgradeBox">
-      <button class="upgradeButton">Button 1</button>
-      <button class="upgradeButton">Button 2</button>
-      <button class="upgradeButton">Button 3</button>
-      <button class="upgradeButton">Button 4</button>
-      <button class="upgradeButton">Button 5</button>
-      <button class="upgradeButton">Button 6</button>
+      <button class="upgradeButton">Buy move step</button>
+      <button class="upgradeButton">Buy point in direction</button>
+      <button class="upgradeButton">Unlock leave spike</button>
+      <button class="upgradeButton">Unlock repeat</button>
+      <button class="upgradeButton">Unlock Move 1</button>
+      <button class="upgradeButton">Unlock Move 2</button>
   </div>
    
   </main>
@@ -257,7 +257,8 @@
       const blocklyEditor = document.querySelector('.blockly-editor');
       const blocklyDiv = document.querySelector('#blocklyDiv'); // Select the blocklyDiv
       const button = document.querySelector('.button');   
-      const upgradeBox = document.querySelector('.upgradeBox'); 
+      const upgradeBox = document.querySelector('.upgradeBox');  
+     
       const stats = document.querySelector('.stats'); 
       let blocklyGridRatio = 50; 
 
@@ -375,16 +376,15 @@
         const viewportHeight = window.innerHeight;  
         const stats = document.querySelector(".stats"); 
         const statsWidth = parseInt(stats.style.width, 10); 
-        console.log("818: " + statsWidth); 
         
         // Calculate the new width of the blocklyEditor based on the mouse position
         const newWidth = Math.max(e.clientX - blocklyEditorRect.left, 100); // Minimum width of 100px 
         const currentWidth = blocklyEditorRect.width; // Get current width of blocklyEditor
-        
-        console.log("Width of stats bar: " + statsWidth);   
+
         
         // Allow leftward movement but prevent rightward movement when statsWidth is <= 118 pixels
-        if (statsWidth <= 85 && newWidth > currentWidth) return;
+        if (statsWidth <= 85 && newWidth > currentWidth) return; 
+        else if(blocklyGridRatio > 70 && newWidth > currentWidth) return; 
         else if(blocklyGridRatio < 50 && newWidth < currentWidth) return; 
 
         // Set the Blockly grid ratio
@@ -401,8 +401,8 @@
         const scaleFactorHeight = viewportHeight / gridHeight;
 
         let scaleFactor = Math.min(viewportWidth, viewportHeight) / 485; // 485 is an arbitrary reference value 
-        if (blocklyGridRatio > 54) { 
-            scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio * 6.5)) - (blocklyGridRatio / 100); 
+        if (blocklyGridRatio > 50) { 
+            scaleFactor = Math.min(viewportWidth, viewportHeight) / ((blocklyGridRatio * 7.15)) - (blocklyGridRatio / 100); 
             console.log("Scale factor: " + scaleFactor); 
         }
 
