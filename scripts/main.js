@@ -82,10 +82,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateBlockCount() {  
     console.log("rer2: "+game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["repeat"]); 
-    document.querySelector('#no-click-repeat').style.display = countBlocksOfType('controls_repeat_ext') <= game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["repeat"] ? 'none' : 'flex'; 
-    document.querySelector('#no-click-move-step').style.display = countBlocksOfType('move_step') <= 0 ? 'none' : 'flex'; 
-    document.querySelector('#no-click-leave-spike').style.display = countBlocksOfType('leave_spike') <= 0 ? 'none' : 'flex'; 
-    document.querySelector('#no-click-point-in-direction').style.display = countBlocksOfType('point_in_direction') <= 0 ? 'none' : 'flex';
+    document.querySelector('#no-click-repeat').style.display = countBlocksOfType('controls_repeat_ext') < game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["repeat"] ? 'none' : 'flex'; 
+    document.querySelector('#no-click-move-step').style.display = countBlocksOfType('move_step') < game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["move_step"] ? 'none' : 'flex'; 
+    document.querySelector('#no-click-leave-spike').style.display = countBlocksOfType('leave_spike') < game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["leave_spike"] ? 'none' : 'flex'; 
+    document.querySelector('#no-click-point-in-direction').style.display = countBlocksOfType('point_in_direction') < game.grid.playerConfigs[handlePlayers.turn-1].blockUpgrades["point_in_direction"] ? 'none' : 'flex';
   }
 
   // Initialize Blockly workspace and set up event listeners
@@ -142,7 +142,56 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   } else {
     console.error('Failed to initialize Blockly workspace');
-  }
+  }  
+
+  function handleUpgrade(upgrade, cost) {
+    // Determine the current player's index based on their turn
+    const currentPlayerIndex = handlePlayers.turn - 1;
+    const currentPlayer = game.grid[`player${handlePlayers.turn}`];
+    const currentPlayerConfig = game.grid.playerConfigs[currentPlayerIndex];
+    if (currentPlayerConfig.coins >= cost) {
+        currentPlayerConfig.blockUpgrades[upgrade]++;
+        currentPlayer.blockUpgrades[upgrade]++;  // Ensure the player object reflects the upgrade
+        currentPlayerConfig.coins -= cost;
+        currentPlayer.coins = currentPlayerConfig.coins;  // Synchronize the coins in player object
+        game.grid.updatePlayerStats();
+        updateBlockCount();
+    }
+}
+
+
+
+
+  const upgradeButtons = document.querySelectorAll('.upgradeButton');  
+  upgradeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const action = button.textContent.trim(); // Get the button text content to determine the action
+
+            switch (action) {
+                case 'Buy move step': 
+                    handleUpgrade("move_step", 3); 
+                    break;
+                case 'Buy point in direction': 
+                    handleUpgrade("point_in_direction", 6);  
+                    console.log("3ere: "+game.grid.playerConfigs[handlePlayers.turn-1].coins); 
+                    break;
+                case 'Unlock leave spike': 
+                    handleUpgrade("leave_spike", 4); 
+                    break;
+                case 'Unlock repeat': 
+                    handleUpgrade("repeat", 20); 
+                    break;
+                case 'Unlock Move 1': 
+                    console.log("unlock move 1"); 
+                    break;
+                case 'Unlock Move 2': 
+                    console.log("unlock move 2"); 
+                    break;
+                default:
+                    console.log('Unknown action: ' + action);
+            }
+        });
+    });
 
   // Initial block count
   updateBlockCount();
@@ -156,3 +205,4 @@ document.addEventListener('DOMContentLoaded', function () {
   // Automatically switch to Maker Mode
   enableMakerMode();
 });
+
